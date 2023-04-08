@@ -1,0 +1,40 @@
+{% extends 'layout.html' %}
+{% block title %}Edit Client{% endblock %}
+<!-- Create a form update account information, which only username email and password, they all are required fields-->
+{% block content %}
+<h2>Edit Client</h2>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+<form action="{{ url_for('accounts_edit', id=account.id) }}" method="post">
+    <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" class="form-control" id="username" name="username" value="{{ account.username }}" required>
+    </div>
+    <div class="form-group">
+        <label for="email">E-Mail</label>
+        <input type="email" class="form-control" id="email" name="email" value="{{ account.email }}" required>
+    </div>
+    <hr style="margin: 30px 5px"/>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" class="form-control" id="password" name="password" placeholder="Leave it blank if you do not want to change your password" >
+    </div>
+    <div class="form-group">
+        <label for="confirm_password">Confirm Password</label>
+        <input type="password" class="form-control" id="confirm_password" name="confirm_password" >
+    </div>
+    <hr style="margin: 20px 5px"/>
+    <a href="{{ url_for('accounts_view', id=account.id) }}" class="btn btn-secondary"><i class="fa fa-arrow-left"></i> Back</a>
+    <button type="submit" class="btn btn-success">Submit</button>
+    <button type="cancel" class="btn btn-danger">Cancel</button>
+</form>
+
+
+{% endblock %}

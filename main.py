@@ -1,0 +1,341 @@
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask_mysqldb import MySQL
+import MySQLdb.cursors
+import hashlib
+
+
+app = Flask(__name__)
+
+# Change this to your secret key (can be anything, it's for extra protection)
+app.secret_key = ',vsh!;;)`LqJ:pMKP/`{|"{XTnFGm!'
+
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'alex'
+app.config['MYSQL_PASSWORD'] = 'P@ssw0RD'
+app.config['MYSQL_DB'] = 'crm_system'
+
+# Intialize MySQL
+mysql = MySQL(app)
+
+@app.route('/')
+def index():
+    return render_template('main.html')
+def login():
+    # Check if user is loggedin
+    if 'loggedin' in session:
+        # User is loggedin show them the home page
+        return render_template('index.html', username=session['username'], module='home')
+    # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+@app.route('/login/', methods=['GET', 'POST'])
+def login():
+    # Output message if something goes wrong...
+    msg = ''
+    # Check if "username" and "password" POST requests exist (user submitted form)
+    if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
+        # Create variables for easy access with md5 hash protection
+        username = request.form['username']
+        password = hashlib.md5(request.form['password'].encode()).hexdigest()
+        # Check if account exists using MySQL
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT * FROM accounts WHERE username = %s AND password = %s', (username, password,))
+        # Fetch one record and return result
+        account = cursor.fetchone()
+        # If account exists in accounts table in out database
+        if account:
+            # Create session data, we can access this data in other routes
+            session['loggedin'] = True
+            session['id'] = account['id']
+            session['username'] = account['username']
+            # Redirect to home page
+            return redirect(url_for('home'))
+        else:
+            # Account doesnt exist or username/password incorrect
+            msg = 'Incorrect username/password!'
+    return render_template('login.html', msg=msg)
+
+
+@app.route('/logout/')
+def logout():
+    # Remove session data, this will log the user out
+    session.pop('loggedin', None)
+    session.pop('id', None)
+    session.pop('username', None)
+    # Redirect to login page
+    return redirect(url_for('login'))
+
+
+@app.route('/home')
+def home():
+    # Check if user is loggedin
+    if 'loggedin' in session:
+        # User is loggedin show them the home page
+        return render_template('index.html', username=session['username'],  module ='home')
+    # User is not loggedin redirect to login page
+    return redirect(url_for('login'), msg='Unauthorized Access')
+
+
+# show all clients and join contacts table in the database using mysql
+@app.route('/client')
+def client():
+    # Check if user is loggedin
+    if 'loggedin' in session:
+        # User is loggedin show them the home page
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT * FROM clients')
+        # Fetch all records and return result
+        clients = cursor.fetchall()
+        return render_template('clients.html', clients=clients, module="client")
+    return render_template('login.html', msg='Unauthorized Access')
+
+
+@app.route('/client/add', methods=['GET', 'POST'])
+def client_add():
+    # Check if user is loggedin
+    if 'loggedin' in session:
+        # User is loggedin show them the home page
+        # Create variables for easy access
+        if request.method == 'POST':
+            first_name = request.form['first_name']
+            last_name = request.form['last_name']
+            email = request.form['email']
+            phone_number = request.form['phone_number']
+            address = request.form['address']
+            city = request.form['city']
+            state = request.form['state']
+            # Check if account exists using MySQL
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute(
+                'INSERT INTO clients (first_name, last_name, email, phone_number, address, city, state) VALUES (%s, %s, %s, %s, %s, %s, %s)',
+                (first_name, last_name, email, phone_number, address, city, state,))
+            mysql.connection.commit()
+            return redirect(url_for('client'))
+        else:
+            return render_template('client_add.html')
+
+
+# view contact in the database using mysql
+@app.route('/client/<int:id>' , methods=['GET', 'POST'])
+def client_view(id):
+    # Check if user is loggedin
+    if 'loggedin' in session:
+        # User is loggedin show them the home page
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT * FROM clients WHERE id = %s', (id,))
+        # Fetch one record and return result
+        client = cursor.fetchone()
+        return render_template('client_view.html', client=client,module="client")
+    else:
+        return render_template('login.html', msg='Unauthorized Access')
+
+
+# edit contact in the database using mysql
+@app.route('/client/edit/<int:id>' , methods=['GET', 'POST'])
+def client_edit(id):
+    # Check if user is loggedin
+    if 'loggedin' in session:
+        if request.method == 'POST':
+            # User is loggedin show them the home page
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute(
+                'UPDATE clients SET first_name = %s, last_name = %s, email = %s, phone_number = %s, address = %s, city = %s, state = %s WHERE id = %s',
+                (request.form['first_name'], request.form['last_name'], request.form['email'], request.form['phone_number'], request.form['address'], request.form['city'], request.form['state'], id,))
+            mysql.connection.commit()
+            flash('Client Updated Successfully, ID: ' + str(id), 'success')
+            return redirect(url_for('client'))
+        else:
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute('SELECT * FROM clients WHERE id = %s', (id,))
+            # Fetch one record and return result
+            client = cursor.fetchone()
+            return render_template('client_edit.html', client=client, module="client")
+    else:
+        return render_template('login.html', 'Unauthorized Access')
+
+
+# delete contact in the database using mysql
+@app.route('/client/delete/<int:id>')
+def client_delete(id):
+    # Check if user is loggedin
+    if 'loggedin' in session:
+        # User is loggedin show them the home page
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('DELETE FROM clients WHERE id = %s', (id,))
+
+        flash('Client Deleted Successfully, ID: ' + str(id), 'success')
+        mysql.connection.commit()
+        return redirect(url_for('client'))
+    else:
+        return render_template('login.html', 'Unauthorized Access')
+
+@app.route('/sales')
+def sales():
+    # Check if user is loggedin
+    if 'loggedin' in session:
+        # User is loggedin show them the home page
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT * FROM sales JOIN clients ON sales.client_id = clients.id')
+        # Fetch all records and return result
+        sales = cursor.fetchall()
+        return render_template('sales.html', sales=sales, module="sales")
+    else:
+        return render_template('login.html', 'Unauthorized Access')
+@app.route('/sales/<int:id>' , methods=['GET'])
+def sales_view(id):
+    #check if user is loggedin
+    if 'loggedin' in session:
+        # User is loggedin show them the home page
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT * FROM sales JOIN clients ON sales.client_id = clients.id WHERE sales.sale_id = %s', (id,))
+        # Fetch one record and return result
+        sale = cursor.fetchone()
+        return render_template('sales_view.html', sale=sale, module="sales")
+    else:
+        return render_template('login.html', 'Unauthorized Access')
+@app.route('/sales/edit/<int:id>' , methods=['GET', 'POST'])
+def sales_edit(id):
+    # Check if user is loggedin
+    if 'loggedin' in session:
+        if request.method == 'POST':
+            # User is loggedin show them the home page
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute(
+                'UPDATE sales SET sale_date = %s, product_name = %s, sale_amount = %s WHERE sale_id = %s',
+                (request.form['sale_date'], request.form['product_name'], request.form['sale_amount'], id,))
+            mysql.connection.commit()
+            flash('Sales Updated Successfully, ID: ' + str(id), 'success')
+            return redirect(url_for('sales'))
+        else:
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute('SELECT * FROM sales JOIN clients ON clients.id = sales.client_id WHERE sale_id = %s', (id,))
+            # Fetch one record and return result
+            sale = cursor.fetchone()
+            return render_template('sales_edit.html', sale=sale, module="sales")
+    else:
+        return render_template('login.html', 'Unauthorized Access')
+
+@app.route('/sales/add' , methods=['GET', 'POST'])
+def sales_add():
+    # Check if user is loggedin
+    if 'loggedin' in session:
+        if request.method == 'POST':
+            # User is loggedin show them the home page
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute(
+                'INSERT INTO sales (sale_date, product_name, sale_amount, client_id) VALUES (%s, %s, %s, %s)',
+                (request.form['sale_date'], request.form['product_name'], request.form['sale_amount'], request.form['client_id'],))
+            mysql.connection.commit()
+            flash('Sales Added Successfully', 'success')
+            return redirect(url_for('sales'))
+        else:
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute('SELECT * FROM clients')
+            # Fetch one record and return result
+            clients = cursor.fetchall()
+            return render_template('sales_add.html', clients=clients, module="sales")
+    else:
+        return render_template('login.html', 'Unauthorized Access')
+@app.route('/sales/delete/<int:id>')
+def sales_delete(id):
+    # Check if user is loggedin
+    if 'loggedin' in session:
+        # User is loggedin show them the home page
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('DELETE FROM sales WHERE sale_id = %s', (id,))
+
+        flash('Sales Deleted Successfully, ID: ' + str(id), 'success')
+        mysql.connection.commit()
+        return redirect(url_for('sales'))
+    else:
+        return render_template('login.html', 'Unauthorized Access')
+@app.route('/accounts')
+def accounts():
+    # Check if user is loggedin
+    if 'loggedin' in session:
+        # User is loggedin show them the home page
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT * FROM accounts')
+        # Fetch all records and return result
+        accounts = cursor.fetchall()
+        return render_template('accounts.html', accounts=accounts, module="accounts")
+    else:
+        return render_template('login.html', 'Unauthorized Access')
+
+@app.route('/accounts/<int:id>' , methods=['GET'])
+def accounts_view(id):
+    #check if user is loggedin
+    if 'loggedin' in session:
+        # User is loggedin show them the home page
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT * FROM accounts WHERE id = %s', (id,))
+        # Fetch one record and return result
+        account = cursor.fetchone()
+        return render_template('account_view.html', account=account, module="accounts")
+@app.route('/accounts/add', methods=['GET', 'POST'])
+def accounts_add():
+    # Check if user is loggedin
+    if 'loggedin' in session:
+        # User is loggedin show them the home page
+        # Create variables for easy access
+        if request.method == 'POST':
+            username = request.form['username']
+            email = request.form['email']
+            password = request.form['password']
+            confirm_password = request.form['address']
+            city = request.form['city']
+            state = request.form['state']
+            # Check if account exists using MySQL
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute(
+                'INSERT INTO clients (first_name, last_name, email, phone_number, address, city, state) VALUES (%s, %s, %s, %s, %s, %s, %s)',
+                (first_name, last_name, email, phone_number, address, city, state,))
+            mysql.connection.commit()
+            return redirect(url_for('client'))
+        else:
+            return render_template('client_add.html')
+
+
+@app.route('/accounts/edit/<int:id>' , methods=['GET', 'POST'])
+def accounts_edit(id):
+    # Check if user is loggedin
+    if 'loggedin' in session:
+        if request.method == 'POST':
+            # User is loggedin show them the home page
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute(
+                'UPDATE accounts SET username = %s, email = %s, password = %s WHERE id = %s',
+                (request.form['username'], request.form['email'], hashlib.md5(request.form['password'].encode()).hexdigest(), id,))
+            mysql.connection.commit()
+            flash('Account Updated Successfully, ID: ' + str(id), 'success')
+            return redirect(url_for('accounts'))
+        else:
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute('SELECT * FROM accounts WHERE id = %s', (id,))
+            # Fetch one record and return result
+            account = cursor.fetchone()
+            return render_template('account_edit.html', account=account, module="accounts")
+    else:
+        return render_template('login.html', 'Unauthorized Access')
+
+@app.route('/accounts/delete/<int:id>')
+def accounts_delete(id):
+    # Check if user is loggedin
+    if 'loggedin' in session:
+        # User is loggedin show them the home page
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('DELETE FROM accounts WHERE id = %s', (id,))
+
+        flash('Account Deleted Successfully, ID: ' + str(id), 'success')
+        mysql.connection.commit()
+        return redirect(url_for('accounts'))
+    else:
+        return render_template('login.html', 'Unauthorized Access')
+
+import requests
+@app.route('/check')
+def check():
+    response = requests.get('https://leochung.hk')
+    if response.status_code == 200:
+        return 'Success!'
+    else:
+        return 'An error has occurred.'

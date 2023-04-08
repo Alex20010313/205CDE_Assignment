@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<h2>Sale Detail</h2>
+<div>
+
+    <table>
+        <tr>
+            <td>id:</td>
+            <td>{{ sale.id }}</td>
+        </tr>
+        <tr>
+            <td>Customer Name (ID):</td>
+            <td>{{ sale.first_name }} {{ sale.last_name }} (ID: {{ sale.client_id }})</td>
+        </tr>
+        <tr>
+            <td>Sale Date:</td>
+            <td>{{ sale.sale_date }}</td>
+        </tr>
+        <tr>
+            <td>Product Name:</td>
+            <td>{{ sale.product_name }}</td>
+        </tr>
+        <tr>
+            <td>Sale Amount:</td>
+            <td>HK${{ sale.sale_amount }}</td>
+        </tr>
+    </table>
+    <a href="{{ url_for('sales') }}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back</a>
+</div>
+{% endblock %}

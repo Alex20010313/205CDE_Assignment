@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+{% block title %}Edit Client{% endblock %}
+
+{% block content %}
+<h2>Edit Client</h2>
+<form action="{{ url_for('sales_edit', id=sale.id) }}" method="post">
+    <div class="form-group">
+        <label for="first_name">Customer Name</label>
+        <input type="text" class="form-control" id="customer_name" name="customer_name" placeholder="Enter First Name"
+               value="{{ sale.first_name }} {{ sale.last_name }}" readonly>
+        <input type="hidden"   id="client_id" name="client_id" value="{{ sale.client_id }}">
+    </div>
+    <div class="form-group">
+        <label for="address">Sale Date</label>
+        <input type="text" class="form-control" id="sale_date" name="sale_date" placeholder="Enter Address"
+               value="{{ sale.sale_date }}">
+    </div>
+    <div class="form-group">
+        <label for="email">Product Name</label>
+        <input class="form-control" id="product_name" name="product_name" placeholder="Enter Email"
+               value="{{ sale.product_name }}">
+    </div>
+    <div class="form-group">
+        <label for="phone_number">Sale Amount</label>
+        <input type="text" class="form-control" id="sale_amount" name="sale_amount" placeholder="Enter Phone Number"
+               value="{{ sale.sale_amount }}">
+    </div>
+
+    <a href="{{ url_for('sales') }}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back</a>
+    <button type="submit" class="btn btn-success">Submit</button>
+    <button type="reset" class="btn btn-danger">Clear</button>
+</form>
+{% endblock %}
