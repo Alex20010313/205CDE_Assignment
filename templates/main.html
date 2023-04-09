@@ -10,6 +10,8 @@
 
 <body>
 
+  <!-- ***** Header ***** -->
+
   <header class="header" role="banner" id="top">
     <div class="row">
       <nav class="nav" role="navigation">
@@ -24,9 +26,11 @@
     <div class="header__text-box row">
       <div class="header__text">
         <h1 class="heading-primary">
-          <span>Online Wine Shop</span>
+          <!-- Replace the following name with your name -->
+          <span>Alex Sin</span>
         </h1>
-        <p>Welcome! Please feel free to look around</p>
+        <!-- Put a small paragraph about yourself -->
+        <p>Welcome to My Online Wine Shop</p>
         <a href="{{ url_for('login') }}" class="btn btn--pink">Login</a>
       </div>
     </div>
@@ -34,10 +38,15 @@
 
   <main role="main">
 
+    <!-- ***** Shop ***** -->
+
     <section class="shop" id="shop">
       <div class="row">
         <h2>Shop</h2>
         <div class="shop__boxes">
+
+          <!-- Each div with the shop__box class is a project. -->
+
           <div class="shop__box">
             <div class="shop__text">
               <h3>Online shopping</h3>
@@ -52,17 +61,17 @@
               </ul>
 
               <div class="shop__links">
-                <a href="" target="_blank" class="link__text">
+                <a href="https://hoffstech.com" target="_blank" class="link__text">
                   Shop for More <span>&rarr;</span>
                 </a>
               </div>
             </div>
-            <div class="img">
-              
-              <img src="../static/images/download.png" alt="Wine">
+            <div class="shop__image-box">
             </div>
           </div>
         </section>
+
+          
           
         <section class="shop" id="club">
           <div class="row">
@@ -70,44 +79,44 @@
           <div class="shop__box">
             <div class="shop__text">
               <p>
-               Our wine club is a great way to get the best wines. Some of the benefits include: 
-              <ul class="shop__list">
-                <li>Exclusive Access to Limited-edition Wines</li>
-                <li>Enjoy Club Members' Discounts</li>
-                <li>Special Wine Club Events</li>
-                <li>And Many More!!!</li>
-              </ul>
+               Our wine club is a great way to get the best wines at the best prices.  
               </p>
+              <ul class="shop__list">
+                <li>React</li>
+                <li>Next.js</li>
+                <li>Node</li>
+                <li>MongoDB</li>
+              </ul>
               <div class="shop__links">
-                <a href="#" class="link__text">Learn More<span>&rarr;</span></a>
+                <a href="#" class="link__text">Visit Site <span>&rarr;</span></a>
               </div>
             </div>
             <div class="shop__image-box">
-              <img src="../static/images/wine club.png" alt="Wine">
-
             </div>
           </div>
         </div>
         </section>
 
-
+    <!-- ***** About Us***** -->
 
     <section class="about" id="about">
       <div class="row">
         <h2>About Us</h2>
         <div class="about__content">
           <div class="about__text">
+            <!-- Replace the below paragraph with info about yourself -->
             <p>
-              The online wine shop is a website that allows customers to purchase wine online. 
-              We offer a wide variety of wines from different regions, types, and brands, making 
-              it easy for customers to find and purchase your favorite wine from the comfort of your 
-              own home. We have detailed information about each wine, including tasting notes, 
-              food pairings, and customer reviews, which can help customers make informed purchasing decisions. 
-              Additionally, we offer delivery services, making it convenient for customers to receive your orders 
-              without leaving your home.
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eos id
+              nostrum illo harum blanditiis, tenetur eum suscipit cupiditate
+              in vel, ex quam quidem quos mollitia labore aut sunt eius
+              ratione molestiae fuga veniam facere similique voluptate.
             </p>
+            <!-- Provide a link to your resume -->
+            <a href="#" class="btn">Learn More About Us</a>
           </div>
+
           <div class="about__photo-container">
+            <!-- Add a nice photo of yourself -->
             <img class="about__photo" src="../static/images/wine1.png"/>
           </div>
         </div>
@@ -115,24 +124,34 @@
     </section>
   </main>
 
+  <!-- ***** Contact ***** -->
+
   <section class="contact" id="contact">
     <div class="row">
       <h2>Contact Us</h2>
       <div class="contact__info">
         <p>
-          If you have any questions or concerns, please feel free to contact us at the following email address.
+          Are you looking for a fast-performing and user-friendly website to
+          represent your product or business? or looking for any kind of
+          consultation? or want to ask questions? or have some advice for me
+          or just want to say "Hi 👋" in any case feel free to Let me know. I
+          will do my best to respond back. 😊 The quickest way to reach out to
+          me is via an email.
         </p>
+        <!-- Replace the email with yours -->
         <a href="mailto:alexsin313@gmail.com" class="btn">alexsin313@gmail.com</a>
       </div>
     </div>
   </section>
+
+  <!-- ***** Footer ***** -->
 
   <footer role="contentinfo" class="footer">
     <div class="row">
       
       
       <p class="footer__text">
-        &copy; 2023 Alex Sin. All rights reserved.
+        &copy; 2020 Alex Sin. All rights reserved.
       </p>
     </div>
   </footer>
