@@ -18,9 +18,52 @@ app.config['MYSQL_DB'] = 'crm_system'
 mysql = MySQL(app)
 
 @app.route('/')
+def main():
+/* -----------------------------------------
+  Have focus outline only for keyboard users 
+ ---------------------------------------- */
+
+const handleFirstTab = (e) => {
+  if(e.key === 'Tab') {
+    document.body.classList.add('user-is-tabbing')
+
+    window.removeEventListener('keydown', handleFirstTab)
+    window.addEventListener('mousedown', handleMouseDownOnce)
+  }
+
+}
+
+const handleMouseDownOnce = () => {
+  document.body.classList.remove('user-is-tabbing')
+
+  window.removeEventListener('mousedown', handleMouseDownOnce)
+  window.addEventListener('keydown', handleFirstTab)
+}
+
+window.addEventListener('keydown', handleFirstTab)
+
+const backToTopButton = document.querySelector(".back-to-top");
+let isBackToTopRendered = false;
+
+let alterStyles = (isBackToTopRendered) => {
+  backToTopButton.style.visibility = isBackToTopRendered ? "visible" : "hidden";
+  backToTopButton.style.opacity = isBackToTopRendered ? 1 : 0;
+  backToTopButton.style.transform = isBackToTopRendered
+    ? "scale(1)"
+    : "scale(0)";
+};
+
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 700) {
+    isBackToTopRendered = true;
+    alterStyles(isBackToTopRendered);
+  } else {
+    isBackToTopRendered = false;
+    alterStyles(isBackToTopRendered);
+  }
+});
+
 def index():
-    return render_template('main.html')
-def login():
     # Check if user is loggedin
     if 'loggedin' in session:
         # User is loggedin show them the home page
@@ -150,7 +193,7 @@ def client_edit(id):
             client = cursor.fetchone()
             return render_template('client_edit.html', client=client, module="client")
     else:
-        return render_template('login.html', msc='Unauthorized Access')
+        return render_template('login.html', 'Unauthorized Access')
 
 
 # delete contact in the database using mysql
@@ -166,7 +209,7 @@ def client_delete(id):
         mysql.connection.commit()
         return redirect(url_for('client'))
     else:
-        return render_template('login.html', msc='Unauthorized Access')
+        return render_template('login.html', 'Unauthorized Access')
 
 @app.route('/sales')
 def sales():
@@ -179,7 +222,7 @@ def sales():
         sales = cursor.fetchall()
         return render_template('sales.html', sales=sales, module="sales")
     else:
-        return render_template('login.html', msc='Unauthorized Access')
+        return render_template('login.html', 'Unauthorized Access')
 @app.route('/sales/<int:id>' , methods=['GET'])
 def sales_view(id):
     #check if user is loggedin
@@ -191,7 +234,7 @@ def sales_view(id):
         sale = cursor.fetchone()
         return render_template('sales_view.html', sale=sale, module="sales")
     else:
-        return render_template('login.html', msc='Unauthorized Access')
+        return render_template('login.html', 'Unauthorized Access')
 @app.route('/sales/edit/<int:id>' , methods=['GET', 'POST'])
 def sales_edit(id):
     # Check if user is loggedin
@@ -212,7 +255,7 @@ def sales_edit(id):
             sale = cursor.fetchone()
             return render_template('sales_edit.html', sale=sale, module="sales")
     else:
-        return render_template('login.html', msc='Unauthorized Access')
+        return render_template('login.html', 'Unauthorized Access')
 
 @app.route('/sales/add' , methods=['GET', 'POST'])
 def sales_add():
@@ -234,7 +277,7 @@ def sales_add():
             clients = cursor.fetchall()
             return render_template('sales_add.html', clients=clients, module="sales")
     else:
-        return render_template('login.html', msc='Unauthorized Access')
+        return render_template('login.html', 'Unauthorized Access')
 @app.route('/sales/delete/<int:id>')
 def sales_delete(id):
     # Check if user is loggedin
@@ -247,7 +290,7 @@ def sales_delete(id):
         mysql.connection.commit()
         return redirect(url_for('sales'))
     else:
-        return render_template('login.html', msc='Unauthorized Access')
+        return render_template('login.html', 'Unauthorized Access')
 @app.route('/accounts')
 def accounts():
     # Check if user is loggedin
@@ -259,7 +302,7 @@ def accounts():
         accounts = cursor.fetchall()
         return render_template('accounts.html', accounts=accounts, module="accounts")
     else:
-        return render_template('login.html', msc='Unauthorized Access')
+        return render_template('login.html', 'Unauthorized Access')
 
 @app.route('/accounts/<int:id>' , methods=['GET'])
 def accounts_view(id):
@@ -315,7 +358,7 @@ def accounts_edit(id):
             account = cursor.fetchone()
             return render_template('account_edit.html', account=account, module="accounts")
     else:
-        return render_template('login.html', msc='Unauthorized Access')
+        return render_template('login.html', 'Unauthorized Access')
 
 @app.route('/accounts/delete/<int:id>')
 def accounts_delete(id):
@@ -329,7 +372,7 @@ def accounts_delete(id):
         mysql.connection.commit()
         return redirect(url_for('accounts'))
     else:
-        return render_template('login.html', msc='Unauthorized Access')
+        return render_template('login.html', 'Unauthorized Access')
 
 import requests
 @app.route('/check')
